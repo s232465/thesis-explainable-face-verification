@@ -234,3 +234,6 @@ Thumbs.db
 
 # Jupyter exports (optional)
 *.ipynb_checkpoints
+
+
+demo/ArcFaceOctupletLoss.tf/
