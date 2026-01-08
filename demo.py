@@ -3,6 +3,9 @@
 #                                 *** EXAMPLE CODE FOR CONFIDENCE SCORE CALCULATION ***                                #
 #                                                                                                                      #
 # ==================================================================================================================== #
+import os
+import json
+from datetime import datetime
 
 import pickle
 from src import ConfidenceScoreGenerator, calculate_score
@@ -38,6 +41,22 @@ print(
     f'The prediction: "{distances[PAIR_ID] < threshold}" for pair id: {PAIR_ID} '
     f"has a confidence score of: {confidence_score:.02f}%."
 )
+
+# ---- Save baseline output (for reproducibility) ----
+os.makedirs("results/baseline_run", exist_ok=True)
+
+result = {
+    "timestamp": datetime.now().isoformat(),
+    "pair_id": int(PAIR_ID),
+    "distance": float(distances[PAIR_ID]),
+    "threshold": float(threshold),
+    "prediction": bool(distances[PAIR_ID] < threshold),
+    "confidence_percent": float(confidence_score),
+}
+
+with open("results/baseline_run/result.json", "w", encoding="utf-8") as f:
+    json.dump(result, f, indent=2)
+
 
 
 # ==================================================================================================================== #
