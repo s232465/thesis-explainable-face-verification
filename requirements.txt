@@ -1,0 +1,7 @@
+tensorflow-gpu==2.8.0
+opencv-python-headless
+numpy
+scikit-learn
+scipy
+matplotlib
+tqdm
