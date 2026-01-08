@@ -205,3 +205,32 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# -----------------------------
+# Project-specific (thesis / ML)
+# -----------------------------
+results/
+runs/
+outputs/
+logs/
+
+# Model checkpoints / weights / artifacts
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Numpy artifacts (often large)
+*.npy
+*.npz
+
+# Data folders (keep raw data out of git)
+data/
+datasets/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Jupyter exports (optional)
+*.ipynb_checkpoints
