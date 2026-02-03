@@ -8,8 +8,10 @@ import json
 from datetime import datetime
 
 import pickle
-from src import ConfidenceScoreGenerator, calculate_score
+from src import calculate_score
 from sklearn.metrics.pairwise import paired_cosine_distances
+
+from src.contracts import ConfidenceScoreGenerator
 
 
 # Load data (example embeddings from XQLFW dataset with FaceTransformer model fine-tuned with OctupletLoss)
@@ -67,7 +69,7 @@ with open("results/baseline_run/result.json", "w", encoding="utf-8") as f:
 
 import matplotlib.pyplot as plt
 import cv2
-from src import MapGenerator, colorblend
+from src.contracts import MapGenerator, colorblend
 from demo import ArcFaceOctupletLoss
 import numpy as np
 
