@@ -213,6 +213,8 @@ results/
 runs/
 outputs/
 logs/
+pretrained/
+third_party/
 
 # Model checkpoints / weights / artifacts
 *.pt
