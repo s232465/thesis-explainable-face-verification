@@ -1,9 +1,13 @@
 from __future__ import annotations
-from dataclasses import dataclass, asdict, field
-from typing import Dict, List, Optional, Literal, Any
 
+from dataclasses import dataclass, asdict, field
+from typing import Any, Dict, List, Literal, Optional
+
+# Enums / constrained strings
+HeatmapNormalize = Literal["minmax", "none"]
 Decision = Literal["match", "non-match"]
 ExplainMethod = Literal["integrated_gradients", "occlusion", "gradcam", "none"]
+
 
 @dataclass
 class FacePair:
@@ -12,6 +16,7 @@ class FacePair:
     pair_id: str = ""
     label: Optional[int] = None  # 1 genuine, 0 impostor, None unknown
 
+
 @dataclass
 class AlignedFace:
     path: str                    # saved aligned crop path
@@ -19,10 +24,12 @@ class AlignedFace:
     detector: str = "mtcnn"
     landmarks: Optional[List[List[float]]] = None  # if available
 
+
 @dataclass
 class AlignedPair:
     A: AlignedFace
     B: AlignedFace
+
 
 @dataclass
 class ParseResult:
@@ -31,6 +38,7 @@ class ParseResult:
     masks_path: str              # saved masks as .npz
     parsing_model: str
     parsing_confidence: Optional[float] = None
+
 
 @dataclass
 class FVResult:
@@ -43,13 +51,25 @@ class FVResult:
     device: str
     backend: str = "pytorch"
 
+
 @dataclass
 class XMapResult:
     method: ExplainMethod
-    heatmapA_path: str           # .npy or image
-    heatmapB_path: str
-    signed: bool = True
-    normalize: str = "minmax"
+
+    # heatmap paths can be missing depending on the method / run flags
+    heatmapA_path: Optional[str] = None   # e.g., .npy or image
+    heatmapB_path: Optional[str] = None
+
+    # Grad-CAM is non-negative; occlusion/IG can be signed
+    signed: bool = False
+
+    # how the saved heatmaps were normalized
+    normalize: HeatmapNormalize = "minmax"
+
+    # optional metadata (useful for Grad-CAM)
+    layer: Optional[str] = None           # e.g., "Conv2d" or a full module path
+    notes: Optional[str] = None
+
 
 @dataclass
 class PartSignal:
@@ -58,11 +78,13 @@ class PartSignal:
     area_frac: float             # part area / face area
     flags: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class PartSignals:
     parts: List[str]
     A: Dict[str, PartSignal]     # key: part name
     B: Dict[str, PartSignal]
+
 
 @dataclass
 class GlobalMetrics:
@@ -72,11 +94,13 @@ class GlobalMetrics:
     reliability: Optional[float] = None
     flags: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class OperatorExplanation:
     bullets: List[str] = field(default_factory=list)
     caution: Optional[str] = None
     overlays: Dict[str, str] = field(default_factory=dict)  # name -> image path
+
 
 @dataclass
 class PipelineResult:
@@ -91,3 +115,4 @@ class PipelineResult:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+        

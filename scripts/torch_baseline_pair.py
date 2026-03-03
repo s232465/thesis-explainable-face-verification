@@ -1,7 +1,7 @@
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict
 
 import numpy as np
 import torch
@@ -9,9 +9,10 @@ from PIL import Image
 from facenet_pytorch import MTCNN
 
 from src.contracts.io import save_json
-from src.contracts.types import FacePair, FVResult, PipelineResult, ParseResult
+from src.contracts.types import FacePair, FVResult, PipelineResult, ParseResult, XMapResult
 from src.models.parsing.hf_face_parsing import HFFaceParser
 from src.models.fr.adaface import AdaFaceEmbedder, AdaFaceConfig
+from src.models.explain.gradcam import pair_gradcam
 
 
 def load_image(path: str) -> Image.Image:
@@ -79,7 +80,6 @@ def face_tensor_to_rgb_uint8(face: torch.Tensor) -> np.ndarray:
 def face_tensor_to_pil(face: torch.Tensor) -> Image.Image:
     """
     Convert aligned face tensor to a PIL image for parsing, independent of what was saved to disk.
-    This prevents 'white aligned images' from breaking parsing.
     """
     x01 = _normalize_face_tensor_to_01(face)
     x = (x01 * 255.0).astype(np.uint8)
@@ -102,6 +102,17 @@ def overlay_label_map(img_rgb: np.ndarray, label_map: np.ndarray, alpha: float =
     return out.clip(0, 255).astype(np.uint8)
 
 
+def save_cam_overlay(rgb_uint8: np.ndarray, cam01: np.ndarray, out_path: Path, alpha: float = 0.45) -> None:
+    """
+    Save a quick visualization overlay of a CAM heatmap (cam01 in [0,1]) on an RGB image.
+    """
+    cam_u8 = (cam01 * 255.0).clip(0, 255).astype(np.uint8)
+    heat_rgb = np.stack([cam_u8, np.zeros_like(cam_u8), 255 - cam_u8], axis=-1)  # pseudo-color
+    out = (rgb_uint8.astype(np.float32) * (1 - alpha) + heat_rgb.astype(np.float32) * alpha)
+    out = out.clip(0, 255).astype(np.uint8)
+    Image.fromarray(out).save(out_path)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--imgA", type=str, required=True, help="Path to probe image")
@@ -109,23 +120,10 @@ def main() -> None:
     parser.add_argument("--outdir", type=str, default="results/adaface_run", help="Output directory")
     parser.add_argument("--threshold", type=float, default=0.6, help="Cosine threshold for match decision (placeholder)")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument(
-        "--do_parsing",
-        action="store_true",
-        help="If set, run face parsing on aligned crops and store masks in PipelineResult.parsing",
-    )
-    parser.add_argument(
-        "--parsing_model",
-        type=str,
-        default="jonathandinu/face-parsing",
-        help="HuggingFace face parsing model name",
-    )
-    parser.add_argument(
-        "--ada_ckpt",
-        type=str,
-        default="pretrained/adaface_ir50_ms1mv2.ckpt",
-        help="Path (relative to repo root) to AdaFace checkpoint",
-    )
+    parser.add_argument("--do_parsing", action="store_true", help="Run face parsing on aligned crops")
+    parser.add_argument("--parsing_model", type=str, default="jonathandinu/face-parsing", help="HF face parsing model")
+    parser.add_argument("--ada_ckpt", type=str, default="pretrained/adaface_ir50_ms1mv2.ckpt", help="AdaFace checkpoint")
+    parser.add_argument("--do_gradcam", action="store_true", help="Compute Grad-CAM heatmaps for A and B.")
     args = parser.parse_args()
 
     outdir = Path(args.outdir)
@@ -141,7 +139,7 @@ def main() -> None:
 
     device = torch.device(args.device)
 
-    # MTCNN does detection + alignment; we disable post_process so the returned crop isn't FaceNet-normalized
+    # MTCNN does detection + alignment; disable post_process to avoid FaceNet-style normalization
     mtcnn = MTCNN(image_size=112, margin=10, keep_all=False, post_process=False, device=device)
 
     # AdaFace embedder
@@ -167,13 +165,43 @@ def main() -> None:
     save_tensor_as_image(faceA, alignedA_path)
     save_tensor_as_image(faceB, alignedB_path)
 
-    # Embeddings + similarity (AdaFace)
+    # Convert aligned faces to uint8 RGB for AdaFace preprocessing
     rgbA = face_tensor_to_rgb_uint8(faceA)
     rgbB = face_tensor_to_rgb_uint8(faceB)
 
+    # Build contract objects early so Grad-CAM can write into it safely
+    pair = FacePair(imgA=str(imgA_path), imgB=str(imgB_path), pair_id="", label=None)
+    pipeline_result = PipelineResult(pair=pair)
+
+    # Prepare AdaFace inputs (BGR + normalization happens inside preprocess)
     inpA = ada.preprocess_rgb_uint8(rgbA)
     inpB = ada.preprocess_rgb_uint8(rgbB)
 
+    # Optional: Grad-CAM before embeddings are detached (needs gradients)
+    if args.do_gradcam:
+        camA, camB, _ = pair_gradcam(ada.model, inpA, inpB)
+
+        heatA_path = outdir / "gradcam_A.npy"
+        heatB_path = outdir / "gradcam_B.npy"
+        np.save(heatA_path, camA.cam)
+        np.save(heatB_path, camB.cam)
+
+        # Save quick overlays for sanity-checking
+        save_cam_overlay(rgbA, camA.cam, outdir / "gradcam_overlay_A.png")
+        save_cam_overlay(rgbB, camB.cam, outdir / "gradcam_overlay_B.png")
+
+        pipeline_result.xmap = XMapResult(
+            method="gradcam",
+            heatmapA_path=str(heatA_path.resolve()),
+            heatmapB_path=str(heatB_path.resolve()),
+            signed=False,
+            normalize="minmax",
+            layer=camA.layer_name, 
+        )
+
+        print(f"Grad-CAM layer used: {camA.layer_name}")
+
+    # Embeddings + similarity (AdaFace)
     embA = ada.embed(inpA)
     embB = ada.embed(inpB)
 
@@ -186,14 +214,6 @@ def main() -> None:
     np.save(embA_path, embA.numpy())
     np.save(embB_path, embB.numpy())
 
-    # Build contract objects
-    pair = FacePair(
-        imgA=str(imgA_path),
-        imgB=str(imgB_path),
-        pair_id="",
-        label=None,
-    )
-
     fv = FVResult(
         model="AdaFace ir_50 (ms1mv2)",
         embeddingA_path=str(embA_path.resolve()),
@@ -204,12 +224,9 @@ def main() -> None:
         device=str(device),
         backend="pytorch",
     )
+    pipeline_result.fv = fv
 
-    pipeline_result = PipelineResult(pair=pair, fv=fv)
-
-    # -------------------------
     # Optional: face parsing (parse from in-memory aligned tensors, NOT from saved PNGs)
-    # -------------------------
     if args.do_parsing:
         face_parser = HFFaceParser(model_name=args.parsing_model, device=str(device))
 
@@ -225,11 +242,9 @@ def main() -> None:
         np.save(labelA_path, outA.label_map)
         np.save(labelB_path, outB.label_map)
 
-        # Save a quick overlay image for sanity-checking
-        imgA_np = np.array(pilA, dtype=np.uint8)
-        imgB_np = np.array(pilB, dtype=np.uint8)
-        overlayA = overlay_label_map(imgA_np, outA.label_map)
-        overlayB = overlay_label_map(imgB_np, outB.label_map)
+        # Save overlays for sanity-checking
+        overlayA = overlay_label_map(np.array(pilA, dtype=np.uint8), outA.label_map)
+        overlayB = overlay_label_map(np.array(pilB, dtype=np.uint8), outB.label_map)
         Image.fromarray(overlayA).save(outdir / "parse_overlay_A.png")
         Image.fromarray(overlayB).save(outdir / "parse_overlay_B.png")
 
