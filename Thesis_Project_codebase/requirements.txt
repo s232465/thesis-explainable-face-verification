@@ -1,0 +1,10 @@
+torch>=1.13
+torchvision
+facenet-pytorch
+transformers
+Pillow
+numpy
+matplotlib
+tqdm
+opencv-python-headless
+scipy

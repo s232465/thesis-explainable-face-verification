@@ -1,0 +1,145 @@
+========================================================================
+FIDELITY EVALUATION V3 — PROBE-SIDE SEMANTIC OCCLUSION
+========================================================================
+
+PRIMARY METRIC — Cross-perturbation deletion on absolute influence
+  TOP_K=3, N_RANDOM=30
+  Config A: rank by gray |delta|, observe blur |delta|
+  Config B: rank by blur |delta|, observe gray |delta|
+  Random baseline: drawn from FULL valid part set (with 8 parts and
+  TOP_K=3 the middle pool has only 2 parts, always below TOP_K).
+  Exhaustive enumeration used when pool has <= 100 combinations.
+
+  Config A (gray rank -> blur observe)
+    mean top-minus-bottom    : 0.0160
+    median top-minus-bottom  : 0.0129
+    mean top/bottom ratio    : 4.401
+    mean random/bottom ratio : 2.619
+    top beats random         : 225/265 (84.9%)
+    pairs with ratio > 1.0   : 223/265
+    bootstrap 95% CI (mean top-minus-bottom): [0.0139, 0.0182]
+
+  Config B (blur rank -> gray observe)
+    mean top-minus-bottom    : 0.0484
+    median top-minus-bottom  : 0.0307
+    mean top/bottom ratio    : 5.703
+    mean random/bottom ratio : 3.200
+    top beats random         : 216/265 (81.5%)
+    pairs with ratio > 1.0   : 224/265
+    bootstrap 95% CI (mean top-minus-bottom): [0.0417, 0.0554]
+
+SECONDARY METRIC A — Signed directional deletion
+  Conditions on sign direction before cross-perturbation test.
+  Mated:     ranks green parts (gray_delta < 0) by |gray_delta|,
+             observes max(0, -blur_delta) — rewards directional agreement.
+  Non-mated: ranks red parts (gray_delta > 0) by gray_delta,
+             observes max(0, blur_delta) — rewards directional agreement.
+  Directly validates the green/red overlay logic.
+  Insufficient = fewer than 2*TOP_K directionally correct parts found
+  (common for diffuse-evidence pairs).
+
+  All pairs
+    n total                  : 300
+    n sufficient (ran test)  : 70
+    n insufficient           : 230
+      other: 217
+      all_negative_match: 2
+      all_negative_nonmatch: 8
+      all_positive_nonmatch: 3
+    mean top-minus-bottom    : 0.0260
+    median top-minus-bottom  : 0.0252
+    top beats random         : 63/70 (90.0%)
+    bootstrap 95% CI: [0.0210, 0.0311]
+
+SECONDARY METRIC B — Decision-support cross-perturbation deletion
+  Pairs with all-same-sign support_delta (ambiguous): 45/300
+  [These pairs produce a positive top-minus-bottom by definition —
+   interpret their contribution to the aggregate with caution.]
+
+  Support Config A (gray rank -> blur observe)
+    mean top-minus-bottom    : 0.0170
+    median top-minus-bottom  : 0.0149
+    mean top/bottom ratio    : 1.116
+    mean random/bottom ratio : 0.663
+    top beats random         : 104/265 (39.2%)
+    pairs with ratio > 1.0   : 95/265
+    bootstrap 95% CI (mean top-minus-bottom): [0.0145, 0.0195]
+
+  Support Config B (blur rank -> gray observe)
+    mean top-minus-bottom    : 0.0454
+    median top-minus-bottom  : 0.0334
+    mean top/bottom ratio    : 21.563
+    mean random/bottom ratio : 7.720
+    top beats random         : 112/265 (42.3%)
+    pairs with ratio > 1.0   : 106/265
+    bootstrap 95% CI (mean top-minus-bottom): [0.0380, 0.0528]
+
+CORRECTNESS-CONDITIONED BREAKDOWN (primary metric — abs Config A)
+  mated correct    : n=110
+    mean top-minus-bottom: 0.0279
+  mated incorrect  : n=40
+    mean top-minus-bottom: 0.0069
+  non-match correct: n=150
+    mean top-minus-bottom: 0.0090
+  non-match incorrect: n=0
+    mean top-minus-bottom: N/A
+
+TRIANGULATION ANALYSIS — GradCAM rank agreement
+  Non-blocking diagnostic.  Low rho is expected and informative:
+  GradCAM mean is size-normalised; occlusion abs_delta is size-sensitive.
+  The mean/sum rho divergence diagnoses area-inflation effects.
+  The area-normalised comparison is the methodologically fair version.
+
+  GradCAM mean vs gray abs_delta [size-mismatch]
+    n                   : 297
+    mean                : 0.0812
+    median              : 0.0714
+    std                 : 0.4254
+    >= 0.7  (good)      : 22/297 (7.4%)
+    0.5–0.7 (moderate)  : 35/297 (11.8%)
+    0–0.5   (weak)      : 115/297 (38.7%)
+    < 0     (opposite)  : 125/297 (42.1%)
+    [rho < 0 = methods rank regions in OPPOSITE order]
+
+  GradCAM mean vs gray norm_abs_delta [fair comparison]
+    n                   : 297
+    mean                : -0.0256
+    median              : -0.0238
+    std                 : 0.4615
+    >= 0.7  (good)      : 20/297 (6.7%)
+    0.5–0.7 (moderate)  : 24/297 (8.1%)
+    0–0.5   (weak)      : 102/297 (34.3%)
+    < 0     (opposite)  : 151/297 (50.8%)
+    [rho < 0 = methods rank regions in OPPOSITE order]
+
+  GradCAM sum vs gray abs_delta [size-sensitive, diagnostic]
+    n                   : 297
+    mean                : 0.5339
+    median              : 0.6000
+    std                 : 0.3277
+    >= 0.7  (good)      : 107/297 (36.0%)
+    0.5–0.7 (moderate)  : 78/297 (26.3%)
+    0–0.5   (weak)      : 95/297 (32.0%)
+    < 0     (opposite)  : 17/297 (5.7%)
+    [rho < 0 = methods rank regions in OPPOSITE order]
+
+  GradCAM mean vs blur abs_delta
+    n                   : 297
+    mean                : 0.0713
+    median              : 0.0857
+    std                 : 0.4306
+    >= 0.7  (good)      : 23/297 (7.7%)
+    0.5–0.7 (moderate)  : 32/297 (10.8%)
+    0–0.5   (weak)      : 122/297 (41.1%)
+    < 0     (opposite)  : 120/297 (40.4%)
+    [rho < 0 = methods rank regions in OPPOSITE order]
+
+  mean/norm rho difference (norm - unnorm): -0.1067
+  [positive = normalisation improves GradCAM agreement]
+
+GradCAM non-fatal issues: 3 pair(s)
+  lfw_match_135: too few common parts (2)
+  lfw_nonmatch_091: too few common parts (1)
+  lfw_nonmatch_127: too few common parts (2)
+
+========================================================================

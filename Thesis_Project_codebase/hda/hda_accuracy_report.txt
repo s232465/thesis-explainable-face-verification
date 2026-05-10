@@ -1,0 +1,28 @@
+========================================================
+ACCURACY REPORT — HDA
+========================================================
+
+Total pairs evaluated : 399
+Correct decisions     : 326
+Overall accuracy      : 81.7%
+
+Per-category breakdown
+----------------------------------------
+  female_impostor           148/200  acc= 74.0%  mean_sim=0.2502
+  male_impostor             178/199  acc= 89.4%  mean_sim=0.1803
+
+Match vs non-match
+----------------------------------------
+  nonmatch    326/399  acc=81.7%  sim: mean=0.2153 min=-0.0683 max=0.7309
+
+Threshold
+----------------------------------------
+  0.314827  (LFW calibrated, FAR=0.001)
+
+Confidence label distribution
+----------------------------------------
+  high       163
+  medium     165
+  low        71
+
+========================================================

@@ -1,0 +1,33 @@
+========================================================
+ACCURACY REPORT — GORILLA
+========================================================
+
+Total pairs evaluated : 41
+Correct decisions     : 36
+Overall accuracy      : 87.8%
+
+Per-category breakdown
+----------------------------------------
+  easy_match                 2/3   acc= 66.7%  mean_sim=0.3894
+  easy_nonmatch              3/3   acc=100.0%  mean_sim=0.0420
+  hard_match                 5/7   acc= 71.4%  mean_sim=0.4225
+  hard_nonmatch             18/20  acc= 90.0%  mean_sim=0.1989
+  medium_match               4/4   acc=100.0%  mean_sim=0.6430
+  medium_nonmatch            4/4   acc=100.0%  mean_sim=0.2192
+
+Match vs non-match
+----------------------------------------
+  match       11/14  acc=78.6%  sim: mean=0.4784 min=-0.0216 max=0.7914
+  nonmatch    25/27  acc=92.6%  sim: mean=0.1845 min=-0.0593 max=0.3691
+
+Threshold
+----------------------------------------
+  0.314827  (LFW calibrated, FMR=0.001)
+
+Confidence label distribution
+----------------------------------------
+  high       22
+  medium     13
+  low        6
+
+========================================================

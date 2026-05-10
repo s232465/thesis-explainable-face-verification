@@ -1,0 +1,28 @@
+========================================================
+ACCURACY REPORT — LFW
+========================================================
+
+Total pairs evaluated : 300
+Correct decisions     : 260
+Overall accuracy      : 86.7%
+
+Per-category breakdown
+----------------------------------------
+  lfw_eval                  260/300  acc= 86.7%  mean_sim=0.2246
+
+Match vs non-match
+----------------------------------------
+  match       110/150  acc=73.3%  sim: mean=0.4066 min=-0.0145 max=0.8148
+  nonmatch    150/150  acc=100.0%  sim: mean=0.0427 min=-0.0974 max=0.1950
+
+Threshold
+----------------------------------------
+  0.314827  (LFW calibrated, FAR=0.001)
+
+Confidence label distribution
+----------------------------------------
+  high       225
+  medium     50
+  low        25
+
+========================================================

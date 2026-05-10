@@ -1,0 +1,45 @@
+-----------------------------------------------------------------------------------------------------------------------------------------------
+pair_id                 category            gt         sim      decision     ok       margin    conf       top_sup       top_con       rho   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+gorilla_pair_21         easy_match          match      0.0831   non-match    N        -0.2317   high       nose          skin          0.381 
+gorilla_pair_22         easy_match          match      0.4164   match        Y        0.1016    medium     skin          nose          0.690 
+gorilla_pair_23         easy_match          match      0.6688   match        Y        0.3540    high       skin          l_eye         0.857 
+gorilla_pair_24         easy_nonmatch       nonmatch   -0.0593  non-match    Y        -0.3741   high       l_eye         skin          0.381 
+gorilla_pair_25         easy_nonmatch       nonmatch   0.1471   non-match    Y        -0.1677   high       r_brow        skin          0.786 
+gorilla_pair_26         easy_nonmatch       nonmatch   0.0381   non-match    Y        -0.2767   high       nose          r_brow        0.429 
+gorilla_pair_27         medium_match        match      0.3473   match        Y        0.0325    low        skin          mouth         0.810 
+gorilla_pair_28         medium_match        match      0.7850   match        Y        0.4701    high       skin          r_eye         0.905 
+gorilla_pair_29         medium_match        match      0.7914   match        Y        0.4766    high       skin          l_eye         0.929 
+gorilla_pair_30         medium_match        match      0.6485   match        Y        0.3337    high       skin          l_brow        0.929 
+gorilla_pair_31         medium_nonmatch     nonmatch   0.2787   non-match    Y        -0.0362   low        hair          skin          0.943 
+gorilla_pair_32         medium_nonmatch     nonmatch   0.2347   non-match    Y        -0.0801   medium     nose          skin          0.905 
+gorilla_pair_33         medium_nonmatch     nonmatch   0.1238   non-match    Y        -0.1910   high       nose          mouth         0.643 
+gorilla_pair_34         medium_nonmatch     nonmatch   0.2394   non-match    Y        -0.0754   medium     l_brow        skin          0.619 
+gorilla_pair_35         hard_match          match      0.5450   match        Y        0.2302    high       skin          mouth         0.738 
+gorilla_pair_36         hard_match          match      0.4694   match        Y        0.1545    high       skin          l_brow        0.667 
+gorilla_pair_37         hard_match          match      0.4968   match        Y        0.1820    high       skin          nose          0.429 
+gorilla_pair_38         hard_match          match      -0.0216  non-match    N        -0.3364   high       skin          skin          0.333 
+gorilla_pair_39         hard_match          match      0.6358   match        Y        0.3210    high       skin          l_eye         0.964 
+gorilla_pair_40         hard_match          match      0.5882   match        Y        0.2734    high       skin          -             0.571 
+gorilla_pair_41         hard_match          match      0.2437   non-match    N        -0.0712   medium     r_brow        skin          1.000 
+gorilla_pair_1          hard_nonmatch       nonmatch   0.2215   non-match    Y        -0.0933   medium     hair          skin          0.762 
+gorilla_pair_2          hard_nonmatch       nonmatch   0.0850   non-match    Y        -0.2298   high       nose          skin          0.667 
+gorilla_pair_3          hard_nonmatch       nonmatch   0.1793   non-match    Y        -0.1356   medium     l_eye         nose          0.476 
+gorilla_pair_4          hard_nonmatch       nonmatch   0.1201   non-match    Y        -0.1947   high       skin          nose          0.786 
+gorilla_pair_5          hard_nonmatch       nonmatch   0.0331   non-match    Y        -0.2817   high       hair          skin          -0.119
+gorilla_pair_6          hard_nonmatch       nonmatch   0.2862   non-match    Y        -0.0286   low        hair          skin          0.952 
+gorilla_pair_7          hard_nonmatch       nonmatch   0.2764   non-match    Y        -0.0385   low        r_brow        skin          0.690 
+gorilla_pair_8          hard_nonmatch       nonmatch   0.2352   non-match    Y        -0.0796   medium     nose          skin          0.595 
+gorilla_pair_9          hard_nonmatch       nonmatch   0.1505   non-match    Y        -0.1643   high       mouth         skin          0.976 
+gorilla_pair_10         hard_nonmatch       nonmatch   0.1927   non-match    Y        -0.1221   medium     l_brow        skin          0.595 
+gorilla_pair_11         hard_nonmatch       nonmatch   0.1904   non-match    Y        -0.1244   medium     hair          nose          0.762 
+gorilla_pair_12         hard_nonmatch       nonmatch   0.1320   non-match    Y        -0.1828   high       hair          skin          0.405 
+gorilla_pair_13         hard_nonmatch       nonmatch   0.3168   match        N        0.0020    low        skin          nose          -0.238
+gorilla_pair_14         hard_nonmatch       nonmatch   0.3691   match        N        0.0542    medium     skin          l_eye         0.833 
+gorilla_pair_15         hard_nonmatch       nonmatch   0.2049   non-match    Y        -0.1099   medium     r_brow        nose          0.929 
+gorilla_pair_16         hard_nonmatch       nonmatch   0.1111   non-match    Y        -0.2037   high       nose          skin          0.810 
+gorilla_pair_17         hard_nonmatch       nonmatch   0.2136   non-match    Y        -0.1012   medium     l_brow        skin          0.048 
+gorilla_pair_18         hard_nonmatch       nonmatch   0.1568   non-match    Y        -0.1581   high       nose          skin          0.762 
+gorilla_pair_19         hard_nonmatch       nonmatch   0.2109   non-match    Y        -0.1039   medium     l_brow        skin          0.786 
+gorilla_pair_20         hard_nonmatch       nonmatch   0.2932   non-match    Y        -0.0217   low        r_eye         skin          0.929 
+-----------------------------------------------------------------------------------------------------------------------------------------------
